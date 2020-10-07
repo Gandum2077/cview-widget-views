@@ -32,8 +32,22 @@ class BaseWidget {
     this._views = arr;
   }
 
+  /**
+   * 直接设定views
+   * @param {any[]} arr 
+   */
   setViews(arr) {
     this.views = arr;
+    return this;
+  }
+
+  /**
+   * 直接设定views
+   * @param {string} name
+   * @param {*} value
+   */
+  setProps(name, value) {
+    this._props[name] = value;
     return this;
   }
 
@@ -69,7 +83,7 @@ class BaseWidget {
 
   /**
    * 修改中点的位置
-   * @param {JSBoxPoint} point
+   * @param {{}} point JSBoxPoint
    */
   position(point) {
     this._props.position = point;
@@ -78,7 +92,7 @@ class BaseWidget {
 
   /**
    * 指定视图的位置偏移(向右下方向偏移的位置)
-   * @param {JSBox} point
+   * @param {{}} point JSBoxPoint
    */
   offset(point) {
     this._props.offset = point;
@@ -87,7 +101,7 @@ class BaseWidget {
 
   /**
    * 指定视图的边距
-   * @param {number|JSBoxInsets} param 数字或者$insets，若为数字即四边皆为此数字
+   * @param {number|{}} param 数字或者$insets，若为数字即四边皆为此数字
    */
   padding(param) {
     this._props.padding = param;
@@ -113,7 +127,7 @@ class BaseWidget {
 
   /**
    * 实现边框效果
-   * @param {{color: JSBoxColor, width: number}} param
+   * @param {{color: {}, width: number}} param {color: JSBoxColor, width: number}
    */
   border({ color, width }) {
     this._props.border = { color, width };
@@ -145,7 +159,7 @@ class BaseWidget {
 
   /**
    * 视图的前景色，例如文字颜色
-   * @param {JSBoxColor} color
+   * @param {{}} color JSBoxColor
    */
   color(color) {
     this._props.color = color;
@@ -154,7 +168,7 @@ class BaseWidget {
 
   /**
    * 视图的背景填充，可以是颜色也可以是图片或者渐变效果
-   * @param {JSBoxColor|Image|Gradient} param
+   * @param {{}} param JSBoxColor|Image|Gradient
    */
   background(param) {
     this._props.background = param;
@@ -243,7 +257,7 @@ class Text extends BaseWidget {
 
   /**
    * 设置文本使用的字体
-   * @param {JSBoxFont|{name: string, size: number,monospaced: boolean}} font
+   * @param {{}} font JSBoxFont|{name: string, size: number,monospaced: boolean}
    */
   font(font) {
     this._props.font = font;
@@ -277,7 +291,7 @@ class Image extends BaseWidget {
 
   /**
    * 图片
-   * @param {JSBoxImage} image
+   * @param {{}} image JSBoxImage
    */
   image(image) {
     this._props.image = image;
@@ -374,7 +388,7 @@ class Color extends BaseWidget {
 
   /**
    * 颜色
-   * @param {string|JSBoxColor} param 只接受hexcode和$color
+   * @param {string|{}} param 只接受hexcode和$color
    */
   color(param) {
     this._props.color = param;
@@ -408,7 +422,7 @@ class Gradient extends BaseWidget {
 
   /**
    * 使用 startPoint 和 endPoint 来指定起始和结束点
-   * @param {JSBoxPoint} point
+   * @param {{}} point JSBoxPoint
    */
   startPoint(point) {
     this._props.startPoint = point;
@@ -417,7 +431,7 @@ class Gradient extends BaseWidget {
 
   /**
    * 使用 startPoint 和 endPoint 来指定起始和结束点
-   * @param {JSBoxPoint} point
+   * @param {{}} point JSBoxPoint
    */
   endPoint(point) {
     this._props.endPoint = point;
@@ -437,7 +451,7 @@ class Gradient extends BaseWidget {
   /**
    * colors 和 locations 来决定每一段渐变的颜色和位置。
    * 注：locations 如果指定，数量必须和 colors 相等。
-   * @param {JSBoxColor[]} arr
+   * @param {obejct[]} arr JSBoxColor[]
    */
   colors(arr) {
     this._props.colors = arr;
@@ -530,6 +544,13 @@ class Spacer extends BaseWidget {
   }
 }
 
+class Divider extends BaseWidget {
+  constructor() {
+    super();
+    this.type = "divider";
+  }
+}
+
 class Hgrid extends BaseWidget {
   constructor() {
     super();
@@ -538,7 +559,13 @@ class Hgrid extends BaseWidget {
 
   /**
    * arr.length代表了有多少行
-   * @param {{alignment?: number, spacing?: number, fixed?: number, flexible?: {minimum: number, maximum: number}, adaptive?: {minimum: number, maximum: number}}[]} arr
+   * @param {{
+   * alignment?: number,
+   * spacing?: number,
+   * fixed?: number,
+   * flexible?: {minimum: number, maximum: number},
+   * adaptive?: {minimum: number, maximum: number}
+   * }[]} arr
    */
   rows(arr) {
     this._props.rows = arr;
@@ -572,7 +599,13 @@ class Vgrid extends BaseWidget {
 
   /**
    * arr.length代表了有多少列
-   * @param {{alignment?: number, spacing?: number, fixed?: number, flexible?: {minimum: number, maximum: number}, adaptive?: {minimum: number, maximum: number}}[]} arr
+   * @param {{
+   * alignment?: number,
+   * spacing?: number,
+   * fixed?: number,
+   * flexible?: {minimum: number, maximum: number},
+   * adaptive?: {minimum: number, maximum: number}
+   * }[]} arr
    */
   columns(arr) {
     this._props.rows = arr;
@@ -604,6 +637,7 @@ module.exports = {
   Image,
   Color,
   Gradient,
+  Divider,
   Hstack,
   Vstack,
   Zstack,
