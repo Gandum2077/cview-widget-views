@@ -34,7 +34,7 @@ class BaseWidget {
 
   /**
    * 直接设定views
-   * @param {any[]} arr 
+   * @param {any[]} arr
    */
   setViews(arr) {
     this.views = arr;
@@ -250,7 +250,7 @@ class Text extends BaseWidget {
    * 指定文本为粗体
    * @param {boolean} bool
    */
-  bold(bool) {
+  bold(bool = true) {
     this._props.bold = bool;
     return this;
   }
@@ -608,7 +608,7 @@ class Vgrid extends BaseWidget {
    * }[]} arr
    */
   columns(arr) {
-    this._props.rows = arr;
+    this._props.columns = arr;
     return this;
   }
 
