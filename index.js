@@ -3,8 +3,9 @@
  * definition属性获取定义，views属性设置子view
  */
 class BaseWidget {
-  constructor() {
-    this._props = {};
+  constructor(ordered = false) {
+    this.ordered = ordered;
+    this._props = new Map();
     this._views = [];
   }
 
@@ -15,7 +16,8 @@ class BaseWidget {
   _getDefinition(view) {
     const definition = {};
     definition.type = view.type;
-    definition.props = view._props;
+    if (view.ordered) definition.modifiers = view.modifiers;
+    else definition.props = view.props;
     if (view.views && view.views.length)
       definition.views = view.views.map(n => {
         if (n instanceof BaseWidget) return this._getDefinition(n);
@@ -33,6 +35,20 @@ class BaseWidget {
   }
 
   /**
+   *  获得props对象
+   */
+  get props() {
+    return Object.fromEntries(this._props.entries());
+  }
+
+  /**
+   * 获得modifiers数组
+   */
+  get modifiers() {
+    return [...this._props.entries()].map(n => Object.fromEntries([n]));
+  }
+
+  /**
    * 直接设定views
    * @param {any[]} arr
    */
@@ -42,13 +58,17 @@ class BaseWidget {
   }
 
   /**
-   * 直接设定views
+   * 直接设定属性
    * @param {string} name
    * @param {*} value
    */
   setProps(name, value) {
-    this._props[name] = value;
+    this._setProps(name, value);
     return this;
+  }
+
+  _setProps(name, value) {
+    this._props.set(name, value);
   }
 
   /**
@@ -67,7 +87,7 @@ class BaseWidget {
     idealHeight,
     maxHeight
   } = {}) {
-    this._props.frame = {
+    this._setProps("frame", {
       width,
       height,
       alignment,
@@ -77,7 +97,7 @@ class BaseWidget {
       minHeight,
       idealHeight,
       maxHeight
-    };
+    });
     return this;
   }
 
@@ -86,7 +106,7 @@ class BaseWidget {
    * @param {{}} point JSBoxPoint
    */
   position(point) {
-    this._props.position = point;
+    this._setProps("position", point);
     return this;
   }
 
@@ -95,7 +115,7 @@ class BaseWidget {
    * @param {{}} point JSBoxPoint
    */
   offset(point) {
-    this._props.offset = point;
+    this._setProps("offset", point);
     return this;
   }
 
@@ -104,7 +124,7 @@ class BaseWidget {
    * @param {number|{}} param 数字或者$insets，若为数字即四边皆为此数字
    */
   padding(param) {
-    this._props.padding = param;
+    this._setProps("padding", param);
     return this;
   }
 
@@ -113,7 +133,7 @@ class BaseWidget {
    * @param {number} num
    */
   layoutPriority(num) {
-    this._props.layoutPriority = num;
+    this._setProps("layoutPriority", num);
   }
 
   /**
@@ -121,7 +141,7 @@ class BaseWidget {
    * @param {number|{value: number, style: number}} param
    */
   cornerRadius(param) {
-    this._props.cornerRadius = param;
+    this._setProps("cornerRadius", param);
     return this;
   }
 
@@ -130,7 +150,7 @@ class BaseWidget {
    * @param {{color: {}, width: number}} param {color: JSBoxColor, width: number}
    */
   border({ color, width }) {
-    this._props.border = { color, width };
+    this._setProps("border", { color, width });
     return this;
   }
 
@@ -140,11 +160,11 @@ class BaseWidget {
    * @param {boolean} antialiased 抗锯齿
    */
   clipped(bool = true, antialiased) {
-    if (!antialiased) this._props.clipped = bool;
+    if (!antialiased) this._setProps("clipped", bool);
     else
-      this._props.clipped = {
+      this._setProps("clipped", {
         antialiased: true
-      };
+      });
     return this;
   }
 
@@ -153,7 +173,16 @@ class BaseWidget {
    * @param {number} num 范围0~1
    */
   opacity(num) {
-    this._props.opacity = num;
+    this._setProps("opacity", num);
+    return this;
+  }
+
+  /**
+   * 应用高斯模糊效果
+   * @param {number} num
+   */
+  blur(num) {
+    this._setProps("blur", num);
     return this;
   }
 
@@ -162,7 +191,7 @@ class BaseWidget {
    * @param {{}} color JSBoxColor
    */
   color(color) {
-    this._props.color = color;
+    this._setProps("color", color);
     return this;
   }
 
@@ -171,7 +200,7 @@ class BaseWidget {
    * @param {{}} param JSBoxColor|Image|Gradient
    */
   background(param) {
-    this._props.background = param;
+    this._setProps("background", param);
     return this;
   }
 
@@ -180,7 +209,7 @@ class BaseWidget {
    * @param {string} url
    */
   link(url) {
-    this._props.link = url;
+    this._setProps("link", url);
     return this;
   }
 
@@ -189,7 +218,7 @@ class BaseWidget {
    * @param {string} url
    */
   widgetURL(url) {
-    this._props.widgetURL = url;
+    this._setProps("widgetURL", url);
     return this;
   }
 }
@@ -205,7 +234,7 @@ class Text extends BaseWidget {
    * @param {string} text
    */
   text(text) {
-    this._props.text = text;
+    this._setProps("text", text);
     return this;
   }
 
@@ -214,7 +243,7 @@ class Text extends BaseWidget {
    * @param {Date} date
    */
   date(date) {
-    this._props.date = date;
+    this._setProps("date", date);
     return this;
   }
 
@@ -224,7 +253,7 @@ class Text extends BaseWidget {
    * @param {number} num
    */
   style(num) {
-    this._props.style = num;
+    this._setProps("style", num);
     return this;
   }
 
@@ -233,7 +262,7 @@ class Text extends BaseWidget {
    * @param {Date} date
    */
   startDate(date) {
-    this._props.startDate = date;
+    this._setProps("startDate", date);
     return this;
   }
 
@@ -242,7 +271,7 @@ class Text extends BaseWidget {
    * @param {Date} date
    */
   endDate(date) {
-    this._props.endDate = date;
+    this._setProps("endDate", date);
     return this;
   }
 
@@ -251,7 +280,7 @@ class Text extends BaseWidget {
    * @param {boolean} bool
    */
   bold(bool = true) {
-    this._props.bold = bool;
+    this._setProps("bold", bool);
     return this;
   }
 
@@ -260,7 +289,7 @@ class Text extends BaseWidget {
    * @param {{}} font JSBoxFont|{name: string, size: number,monospaced: boolean}
    */
   font(font) {
-    this._props.font = font;
+    this._setProps("font", font);
     return this;
   }
 
@@ -269,7 +298,7 @@ class Text extends BaseWidget {
    * @param {number} num
    */
   lineLimit(num) {
-    this._props.lineLimit = num;
+    this._setProps("lineLimit", num);
     return this;
   }
 
@@ -278,7 +307,7 @@ class Text extends BaseWidget {
    * @param {number} num 例如0.5
    */
   minimumScaleFactor(num) {
-    this._props.minimumScaleFactor = num;
+    this._setProps("minimumScaleFactor", num);
     return this;
   }
 }
@@ -294,7 +323,7 @@ class Image extends BaseWidget {
    * @param {{}} image JSBoxImage
    */
   image(image) {
-    this._props.image = image;
+    this._setProps("image", image);
     return this;
   }
 
@@ -303,7 +332,7 @@ class Image extends BaseWidget {
    * @param {string} symbol
    */
   symbol(symbol) {
-    this._props.symbol = symbol;
+    this._setProps("symbol", symbol);
     return this;
   }
 
@@ -312,7 +341,7 @@ class Image extends BaseWidget {
    * @param {string} path
    */
   path(path) {
-    this._props.path = path;
+    this._setProps("path", path);
     return this;
   }
 
@@ -321,7 +350,7 @@ class Image extends BaseWidget {
    * @param {string} uri
    */
   uri(uri) {
-    this._props.uri = uri;
+    this._setProps("uri", uri);
     return this;
   }
 
@@ -330,7 +359,7 @@ class Image extends BaseWidget {
    * @param {boolean} bool
    */
   resizable(bool = true) {
-    this._props.resizable = bool;
+    this._setProps("resizable", bool);
     return this;
   }
 
@@ -339,7 +368,7 @@ class Image extends BaseWidget {
    * @param {boolean} bool
    */
   scaledToFill(bool = true) {
-    this._props.scaledToFill = bool;
+    this._setProps("scaledToFill", bool);
     return this;
   }
 
@@ -348,7 +377,7 @@ class Image extends BaseWidget {
    * @param {boolean} bool
    */
   scaledToFit(bool = true) {
-    this._props.scaledToFit = bool;
+    this._setProps("scaledToFit", bool);
     return this;
   }
 
@@ -357,7 +386,7 @@ class Image extends BaseWidget {
    * @param {boolean} bool
    */
   accessibilityHidden(bool = true) {
-    this._props.accessibilityHidden = bool;
+    this._setProps("accessibilityHidden", bool);
     return this;
   }
 
@@ -366,7 +395,7 @@ class Image extends BaseWidget {
    * @param {boolean} bool
    */
   accessibilityLabel(bool = true) {
-    this._props.accessibilityLabel = bool;
+    this._setProps("accessibilityLabel", bool);
     return this;
   }
 
@@ -375,7 +404,7 @@ class Image extends BaseWidget {
    * @param {boolean} bool
    */
   accessibilityHint(bool = true) {
-    this._props.accessibilityHint = bool;
+    this._setProps("accessibilityHint", bool);
     return this;
   }
 }
@@ -391,7 +420,7 @@ class Color extends BaseWidget {
    * @param {string|{}} param 只接受hexcode和$color
    */
   color(param) {
-    this._props.color = param;
+    this._setProps("color", param);
     return this;
   }
 
@@ -400,7 +429,7 @@ class Color extends BaseWidget {
    * @param {string} hex
    */
   light(hex) {
-    this._props.light = hex;
+    this._setProps("light", hex);
     return this;
   }
 
@@ -409,7 +438,7 @@ class Color extends BaseWidget {
    * @param {string} hex
    */
   dark(hex) {
-    this._props.dark = hex;
+    this._setProps("dark", hex);
     return this;
   }
 }
@@ -425,7 +454,7 @@ class Gradient extends BaseWidget {
    * @param {{}} point JSBoxPoint
    */
   startPoint(point) {
-    this._props.startPoint = point;
+    this._setProps("startPoint", point);
     return this;
   }
 
@@ -434,7 +463,7 @@ class Gradient extends BaseWidget {
    * @param {{}} point JSBoxPoint
    */
   endPoint(point) {
-    this._props.endPoint = point;
+    this._setProps("endPoint", point);
     return this;
   }
 
@@ -444,7 +473,7 @@ class Gradient extends BaseWidget {
    * @param {number[]} arr
    */
   locations(arr) {
-    this._props.locations = arr;
+    this._setProps("locations", arr);
     return this;
   }
 
@@ -454,7 +483,7 @@ class Gradient extends BaseWidget {
    * @param {obejct[]} arr JSBoxColor[]
    */
   colors(arr) {
-    this._props.colors = arr;
+    this._setProps("colors", arr);
     return this;
   }
 }
@@ -471,7 +500,7 @@ class Hstack extends BaseWidget {
    * @param {number} num
    */
   alignment(num) {
-    this._props.alignment = num;
+    this._setProps("alignment", num);
     return this;
   }
 
@@ -480,7 +509,7 @@ class Hstack extends BaseWidget {
    * @param {number} num
    */
   spacing(num) {
-    this._props.spacing = num;
+    this._setProps("spacing", num);
     return this;
   }
 }
@@ -497,7 +526,7 @@ class Vstack extends BaseWidget {
    * @param {number} num
    */
   alignment(num) {
-    this._props.alignment = num;
+    this._setProps("alignment", num);
     return this;
   }
 
@@ -506,7 +535,7 @@ class Vstack extends BaseWidget {
    * @param {number} num
    */
   spacing(num) {
-    this._props.spacing = num;
+    this._setProps("spacing", num);
     return this;
   }
 }
@@ -523,7 +552,7 @@ class Zstack extends BaseWidget {
    * @param {number} num
    */
   alignment(num) {
-    this._props.alignment = num;
+    this._setProps("alignment", num);
     return this;
   }
 }
@@ -539,7 +568,7 @@ class Spacer extends BaseWidget {
    * @param {number} num
    */
   minLength(num) {
-    this._props.minLength = num;
+    this._setProps("minLength", num);
     return this;
   }
 }
@@ -568,7 +597,7 @@ class Hgrid extends BaseWidget {
    * }[]} arr
    */
   rows(arr) {
-    this._props.rows = arr;
+    this._setProps("rows", arr);
     return this;
   }
 
@@ -577,7 +606,7 @@ class Hgrid extends BaseWidget {
    * @param {number} num
    */
   spacing(num) {
-    this._props.spacing = num;
+    this._setProps("spacing", num);
     return this;
   }
 
@@ -586,7 +615,7 @@ class Hgrid extends BaseWidget {
    * @param {number} num
    */
   alignment(num) {
-    this._props.alignment = num;
+    this._setProps("alignment", num);
     return this;
   }
 }
@@ -608,7 +637,7 @@ class Vgrid extends BaseWidget {
    * }[]} arr
    */
   columns(arr) {
-    this._props.columns = arr;
+    this._setProps("columns", arr);
     return this;
   }
 
@@ -617,7 +646,7 @@ class Vgrid extends BaseWidget {
    * @param {number} num
    */
   spacing(num) {
-    this._props.spacing = num;
+    this._setProps("spacing", num);
     return this;
   }
 
@@ -627,7 +656,7 @@ class Vgrid extends BaseWidget {
    * @param {number} num
    */
   alignment(num) {
-    this._props.alignment = num;
+    this._setProps("alignment", num);
     return this;
   }
 }
